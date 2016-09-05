@@ -1,0 +1,216 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no" />
+<style type="text/css">
+	html { height: 100% }
+	body { height: 100%; margin: 0; padding: 0 }
+	#map_canvas { height: 100% }
+</style>
+<link rel="stylesheet" href="style.css">
+<!--jQueryライブラリ読み込み-->
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<!--Googleマップ生成-->
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?Rion=JP&language=ja&sensor=true"></script>
+<script type="text/javascript">
+//マップオブジェクト設定
+var mapObj;
+//大阪市役所を緯度・軽度の初期値に設定
+var kuname="大阪市";
+var kuyakusyo=kuname+"役所";
+var posX=135.502154;
+var posY=34.694062;
+//円の配列（表示、非表示で操作するため）
+var allcircles = new Array();
+var allcircles2 = new Array();
+var allcircles3 = new Array();
+//マップ作成
+google.maps.event.addDomListener(window, 'load', function(){
+	//初期設定
+	var map = document.getElementById("map_canvas");
+	var options = {
+		zoom: 13,
+		center: new google.maps.LatLng(posY, posX),
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+	};
+	mapObj = new google.maps.Map(map, options);  
+	//市役所を中心に設定
+	var pos = new google.maps.LatLng(posY, posX);
+	//var infowindow = new google.maps.InfoWindow({ map: mapObj, position: pos, content: kuyakusyo});
+	mapObj.setCenter(pos);
+	//CSVファイル読み込み
+	var xhr = new XMLHttpRequest();
+	xhr.onload = function(){
+		var tempArray = xhr.responseText.split("\n");
+		//
+		csvArray = new Array();
+		for(var i=0;i<tempArray.length;i++){
+			csvArray[i] = tempArray[i].split(",");
+			var data = csvArray[i];
+			//マーカー作成　画像ファイルを読み込み
+			var image;
+			    image = 'icon_point.png';
+			var marker_image = new google.maps.MarkerImage(
+				image,
+				new google.maps.Size(32,32),
+				new google.maps.Point(0,0),
+				new google.maps.Point(15,15)
+			);
+			var marker = new google.maps.Marker({
+				position: new google.maps.LatLng( parseFloat(data[1]), parseFloat(data[0]) ),
+				map: mapObj,
+				icon: marker_image
+			});
+			//csvファイル　緯度:data[1] 経度:data[0] data1:data[2] data2:data[3] data3:data[4]
+			attachMessage(marker, data[1], data[0], data[2], data[3], data[4]);
+			//円グラフ　生成
+			//data1
+			var fillcolor;
+			if (data[2]<  3000000)                    { fillcolor = "#0033ff"; }
+			if (data[2]>= 3000000 && data[2]< 8000000){ fillcolor = "#0033cc"; }
+			if (data[2]>= 8000000 && data[2]<15000000){ fillcolor = "#003366"; }
+			if (data[2]>=15000000 && data[2]<21000000){ fillcolor = "#ffff00"; }
+			if (data[2]>=21000000 && data[2]<25000000){ fillcolor = "#ff9900"; }
+			if (data[2]>=25000000)                    { fillcolor = "#ff0000"; }
+			var cOpt = {
+				center: new google.maps.LatLng( parseFloat(data[1]), parseFloat(data[0])),
+				radius: 125,
+				strokeWeight: 1,
+				strokeColor: "#000055",
+				strokeOpacity: 0.4,
+				fillColor: fillcolor,
+				fillOpacity: 0.4
+			};
+			var circle = new google.maps.Circle(cOpt);
+			circle.setMap(mapObj);
+			//生成した円をグローバル配列に保存
+			allcircles.push(circle);
+			//data2
+			var fillcolor2;
+			if (data[3]<  3000000)                    { fillcolor2 = "#0033ff"; }
+			if (data[3]>= 3000000 && data[3]< 8000000){ fillcolor2 = "#0033cc"; }
+			if (data[3]>= 8000000 && data[3]<15000000){ fillcolor2 = "#003366"; }
+			if (data[3]>=15000000 && data[3]<21000000){ fillcolor2 = "#ffff00"; }
+			if (data[3]>=21000000 && data[3]<25000000){ fillcolor2 = "#ff9900"; }
+			if (data[3]>=25000000)                    { fillcolor2 = "#ff0000"; }
+			var cOpt2 = {
+				center: new google.maps.LatLng( parseFloat(data[1]), parseFloat(data[0])),
+				radius: 125,
+				strokeWeight: 3,
+				strokeColor: "#550055",
+				strokeOpacity: 0.5,
+				fillColor: fillcolor2,
+				fillOpacity: 0.4
+			};
+			var circle2 = new google.maps.Circle(cOpt2);
+			circle2.setMap(mapObj);
+			//初期設置は非表示
+			circle2.setVisible(false);
+			//生成した円をグローバル配列に保存
+			allcircles2.push(circle2);
+			//data3
+			var fillcolor3;
+			if (data[4]<  3000000)                    { fillcolor3 = "#0033ff"; }
+			if (data[4]>= 3000000 && data[4]< 8000000){ fillcolor3 = "#0033cc"; }
+			if (data[4]>= 8000000 && data[4]<15000000){ fillcolor3 = "#003366"; }
+			if (data[4]>=15000000 && data[4]<21000000){ fillcolor3 = "#ffff00"; }
+			if (data[4]>=21000000 && data[4]<25000000){ fillcolor3 = "#ff9900"; }
+			if (data[4]>=25000000)                    { fillcolor3 = "#ff0000"; }
+			var cOpt3 = {
+				center: new google.maps.LatLng( parseFloat(data[1]), parseFloat(data[0])),
+				radius: 125,
+				strokeWeight: 3,
+				strokeColor: "#550000",
+				strokeOpacity: 0.5,
+				fillColor: fillcolor3,
+				fillOpacity: 0.4
+			};
+			var circle3 = new google.maps.Circle(cOpt3);
+			circle3.setMap(mapObj);
+			//初期設置は非表示
+			circle3.setVisible(false);
+			//生成した円をグローバル配列に保存
+			allcircles3.push(circle3);
+		}
+	};
+	xhr.open("get", "sis1_3.csv", true);
+	xhr.send(null);
+});
+
+//読み込んだcsvからinfowindow生成
+//緯度:data[1] 経度:data[0] data1:data[2] data2:data[3] data3:data[4]
+function attachMessage(getmarker, posx, posy, data1, data2, data3) {
+	//Infowindow生成
+	var infowin = new google.maps.InfoWindow({ content:"賦存量MJ/y："+data1+"</br>"+"導入P_MJ/y："+data2+"</br>"+"条件付P_ML/y："+data3+"</br>"});
+	//マウスオーバー
+	google.maps.event.addListener(getmarker, 'mouseover', function() {
+		infowin.open(getmarker.getMap(), getmarker);
+	});
+	//マウスアウト
+	google.maps.event.addListener(getmarker, 'mouseout', function(){
+		infowin.close();
+	});
+}
+</script>
+<script type="text/javascript">
+$(function(){
+	//data1のチェックボックスクリック
+	$('#data1').on('click', function(){
+		//チェックをはずしたら消す
+		if (!this.checked){
+			for (var i=0;i<allcircles.length;i++){
+				allcircles[i].setVisible(false);
+			}
+		} else {
+		//そうでなければチェックがついたので表示する
+			for (var i=0;i<allcircles.length;i++){
+				allcircles[i].setVisible(true);
+			}
+		}
+	});
+	//data2のチェックボックスクリック
+	$('#data2').on('click', function(){
+		//チェックをはずしたら消す
+		if (!this.checked){
+			for (var i=0;i<allcircles2.length;i++){
+				allcircles2[i].setVisible(false);
+			}
+		} else {
+		//そうでなければチェックがついたので表示する
+			for (var i=0;i<allcircles2.length;i++){
+				allcircles2[i].setVisible(true);
+			}
+		}
+	});
+	//data3のチェックボックスクリック
+	$('#data3').on('click', function(){
+		//チェックをはずしたら消す
+		if (!this.checked){
+			for (var i=0;i<allcircles3.length;i++){
+				allcircles3[i].setVisible(false);
+			}
+		} else {
+		//そうでなければチェックがついたので表示する
+			for (var i=0;i<allcircles3.length;i++){
+				allcircles3[i].setVisible(true);
+			}
+		}
+	});
+});
+</script>
+</head>
+<body>
+<div class="header">
+	<p>大阪市　地中熱導入ポテンシャルデータ</p>
+</div>
+<div id="map_container">
+	<div id="map_canvas"></div>
+</div>
+<div class="fixed">
+	<label><input type="checkbox" id="data1" checked="checked">賦存量MJ/y</label>
+	<label><input type="checkbox" id="data2">導入P_MJ/y</label>
+	<label><input type="checkbox" id="data3">条件付P_ML/y</label>
+</div>
+</body>
+</html>

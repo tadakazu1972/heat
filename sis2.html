@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no" />
+<style type="text/css">
+	html { height: 100% }
+	body { height: 100%; margin: 0; padding: 0 }
+	#map_canvas { height: 100% }
+</style>
+<link rel="stylesheet" href="style.css">
+<!--Googleマップ生成-->
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?Rion=JP&language=ja&sensor=true"></script>
+<script type="text/javascript">
+//マップオブジェクト設定
+var mapObj;
+//大阪市役所を緯度・軽度の初期値に設定
+var kuname="大阪市";
+var kuyakusyo=kuname+"役所";
+var posX=135.502154;
+var posY=34.694062;
+//円の配列（表示、非表示で操作するため）
+var allcircles = new Array();
+//マップ作成
+google.maps.event.addDomListener(window, 'load', function(){
+	//初期設定
+	var map = document.getElementById("map_canvas");
+	var options = {
+		zoom: 13,
+		center: new google.maps.LatLng(posY, posX),
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+	};
+	mapObj = new google.maps.Map(map, options);  
+	//市役所を中心に設定
+	var pos = new google.maps.LatLng(posY, posX);
+	mapObj.setCenter(pos);
+	//CSVファイル読み込み
+	var xhr = new XMLHttpRequest();
+	xhr.onload = function(){
+		var tempArray = xhr.responseText.split("\n");
+		//
+		csvArray = new Array();
+		for(var i=0;i<tempArray.length;i++){
+			csvArray[i] = tempArray[i].split(",");
+			var data = csvArray[i];
+			//円グラフ　生成
+			//data1
+			var fillcolor;
+			if (data[2]<  3000000)                    { fillcolor = "#0033ff"; }
+			if (data[2]>= 3000000 && data[2]< 8000000){ fillcolor = "#0033cc"; }
+			if (data[2]>= 8000000 && data[2]<15000000){ fillcolor = "#003366"; }
+			if (data[2]>=15000000 && data[2]<21000000){ fillcolor = "#ffff00"; }
+			if (data[2]>=21000000 && data[2]<25000000){ fillcolor = "#ff9900"; }
+			if (data[2]>=25000000)                    { fillcolor = "#ff0000"; }
+			var cOpt = {
+				center: new google.maps.LatLng( parseFloat(data[1]), parseFloat(data[0])),
+				radius: 125,
+				strokeWeight: 1,
+				strokeColor: "#000055",
+				strokeOpacity: 0.4,
+				fillColor: fillcolor,
+				fillOpacity: 0.4
+			};
+			var circle = new google.maps.Circle(cOpt);
+			circle.setMap(mapObj);
+		}
+	};
+	xhr.open("get", "sis2.csv", true);
+	xhr.send(null);
+});
+</script>
+</head>
+<body>
+<div class="header">
+	<p>大阪市　地中熱導入ポテンシャルデータ</p>
+</div>
+<div id="map_container">
+	<div id="map_canvas"></div>
+</div>
+<div class="fixed">
+	<label>導入P_MJ/y</label>
+</div>
+</body>
+</html>

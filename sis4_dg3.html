@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no" />
+<style type="text/css">
+	html { height: 100% }
+	body { height: 100%; margin: 0; padding: 0 }
+	#map_canvas { height: 100% }
+</style>
+<link rel="stylesheet" href="style.css">
+<!--Googleマップ生成-->
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?Rion=JP&language=ja&sensor=true"></script>
+<script type="text/javascript">
+//マップオブジェクト設定
+var mapObj;
+//大阪市役所を緯度・軽度の初期値に設定
+var kuname="大阪市";
+var kuyakusyo=kuname+"役所";
+var posX=135.502154;
+var posY=34.694062;
+//マップ作成
+google.maps.event.addDomListener(window, 'load', function(){
+	//初期設定
+	var map = document.getElementById("map_canvas");
+	var options = {
+		zoom: 13,
+		center: new google.maps.LatLng(posY, posX),
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+	};
+	mapObj = new google.maps.Map(map, options);  
+	//市役所を中心に設定
+	var pos = new google.maps.LatLng(posY, posX);
+	mapObj.setCenter(pos);
+	//CSVファイル読み込み
+	var xhr = new XMLHttpRequest();
+	xhr.onload = function(){
+		var tempArray = xhr.responseText.split("\n");
+		//
+		csvArray = new Array();
+		for(var i=0;i<tempArray.length;i++){
+			csvArray[i] = tempArray[i].split(",");
+			var data = csvArray[i];
+			//メッシュ　生成
+			var fillcolor;
+			if (data[4]<    1)                { fillcolor = "#999999"; }
+			if (data[4]>=   1 && data[4]< 500){ fillcolor = "#0033cc"; }
+			if (data[4]>= 500 && data[4]<1000){ fillcolor = "#003366"; }
+			if (data[4]>=1000 && data[4]<1200){ fillcolor = "#ffff00"; }
+			if (data[4]>=1200 && data[4]<1500){ fillcolor = "#ff9900"; }
+			if (data[4]>=1500)                { fillcolor = "#ff0000"; }
+			//長方形の右上（北東）と左下（南西）をセット
+			var ne = new google.maps.LatLng( parseFloat(data[0]), parseFloat(data[1]));
+			var sw = new google.maps.LatLng( parseFloat(data[2]), parseFloat(data[3]));
+			var bounds = new google.maps.LatLngBounds(sw, ne);
+			var rectOpt = {
+				strokeWeight: 1,
+				strokeColor: fillcolor,
+				strokeOpacity: 0.4,
+				fillColor: fillcolor,
+				fillOpacity: 0.4,
+				bounds: bounds
+			};
+			var rectangle = new google.maps.Rectangle(rectOpt);
+			rectangle.setMap(mapObj);
+			createInfoWindow(rectangle, data[0], data[1], data[4]);
+		}
+	};
+	xhr.open("get", "sis4_dg3.csv", true);
+	xhr.send(null);
+});
+
+function createInfoWindow(rectangle, lng, lat, data){
+	//InfoWindowを表示する座標計算
+	var posX = parseFloat(lng) - 0.001397622;
+	var posY = parseFloat(lat) - 0.001374511;
+	var pos = new google.maps.LatLng( posX, posY );
+	//データ表示を小数点第１位までと＋カンマ
+	var value = new Number(data);
+	var valueStr = String(value.toFixed(1)).replace( /(\d)(?=(\d\d\d)+(?!\d))/g, '$1,' );
+	var infowin = new google.maps.InfoWindow({ position:pos, content:"kW単価："+valueStr+" 千円</br>"});
+	//マウスオーバー
+	google.maps.event.addListener(rectangle, 'mouseover', function() {
+		infowin.open(rectangle.getMap(), rectangle);
+	});
+	//マウスアウト
+	google.maps.event.addListener(rectangle, 'mouseout', function(){
+		infowin.close();
+	});
+}
+</script>
+</head>
+<body>
+<div class="header">
+	<p>大阪市　地中熱導入ポテンシャルデータ</p>
+</div>
+<div id="map_container">
+	<div id="map_canvas"></div>
+</div>
+<div class="fixed">
+	<label>kW単価(Φ800mm)_Dg3</label>
+</div>
+</body>
+</html>
