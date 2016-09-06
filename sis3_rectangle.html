@@ -92,13 +92,20 @@ function createInfoWindow(rectangle, lat, lng, data){
 </head>
 <body>
 <div class="header">
-	<p>大阪市　地中熱導入ポテンシャルデータ</p>
+	<p>大阪市　地中熱導入ポテンシャルデータ　条件付導入ポテンシャル</p>
 </div>
 <div id="map_container">
 	<div id="map_canvas"></div>
 </div>
 <div class="fixed">
-	<label>条件付P_ML/y</label>
+	<div id="label">メッシュあたり条件付導入ポテンシャル(密度)</div>
+	<p>(MJ/year/m2,250mメッシュ)</p>
+	<p><font color="#0033ff">■</font> 0 ～ 50</p>
+	<p><font color="#0033cc">■</font> 50 ～ 130</p>
+	<p><font color="#003366">■</font> 130 ～ 220</p>
+	<p><font color="#ffff00">■</font> 220 ～ 310</p>
+	<p><font color="#ff9900">■</font> 310 ～ 390</p>
+	<p><font color="#ff0000">■</font> >= 390</p>
 </div>
 </body>
 </html>

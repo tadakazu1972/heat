@@ -39,17 +39,23 @@ body {
 }
 
 .fixed {
-	font-size:x-large;
 	position: fixed;
-	top:0%;
-	left:0%;
+	top:40%;
+	left:80%;
 	background: #fff;
 }
 
+#label {
+	font-weight:bold;
+}
+
+.fixed p {
+	font-size:16px;
+}
+
 .header p{
-	background: #ffb6c1;
+	background: #fff;
 	text-align: center;
-	color: #fff;
 }
 
 .summary {

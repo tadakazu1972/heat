@@ -92,13 +92,20 @@ function createInfoWindow(rectangle, lng, lat, data){
 </head>
 <body>
 <div class="header">
-	<p>大阪市　地中熱導入ポテンシャルデータ</p>
+	<p>大阪市　地中熱導入ポテンシャルデータ　kW単価(Φ300mm)_Dg1</p>
 </div>
 <div id="map_container">
 	<div id="map_canvas"></div>
 </div>
 <div class="fixed">
-	<label>kW単価(Φ300mm)_Dg1</label>
+	<div id="label">kW単価(Φ300mm)_Dg1</div>
+	<p>(千円)</p>
+	<p><font color="#999999">■</font> 層厚1m未満</p>
+	<p><font color="#0033cc">■</font> ～ 50</p>
+	<p><font color="#003366">■</font> 50 ～ 100</p>
+	<p><font color="#ffff00">■</font> 100 ～ 150</p>
+	<p><font color="#ff9900">■</font> 150 ～ 230</p>
+	<p><font color="#ff0000">■</font> >= 230</p>
 </div>
 </body>
 </html>
